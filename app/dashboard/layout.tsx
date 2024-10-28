@@ -45,7 +45,6 @@ async function getData(userId: string) {
 export default async function Dashboard({ children }: { children: ReactNode }) {
   const session = await auth();
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const data = await getData(session?.user?.id as string);
 
   if (!session?.user) {

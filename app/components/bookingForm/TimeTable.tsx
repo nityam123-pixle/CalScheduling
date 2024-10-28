@@ -82,7 +82,7 @@ import { nylas } from "@/app/lib/nylas";
     );
   
     // Extract busy slots from Nylas data
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   //@ts-ignore 
     const busySlots = nylasData.data[0].timeSlots.map((slot: any) => ({
       start: fromUnixTime(slot.startTime),
       end: fromUnixTime(slot.endTime),
@@ -102,7 +102,6 @@ import { nylas } from "@/app/lib/nylas";
       return (
         isAfter(slot, now) && // Ensure the slot is after the current time
         !busySlots.some(
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           (busy: { start: any; end: any }) =>
             (!isBefore(slot, busy.start) && isBefore(slot, busy.end)) ||
             (isAfter(slotEnd, busy.start) && !isAfter(slotEnd, busy.end)) ||

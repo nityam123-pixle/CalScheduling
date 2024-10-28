@@ -9,7 +9,7 @@ import { revalidatePath } from "next/cache"
 import { nylas } from "./lib/nylas"
 
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+
 export async function onboardingAction(prevState: any, formData: FormData) {
   const session = await requireUser();
 
@@ -32,7 +32,6 @@ export async function onboardingAction(prevState: any, formData: FormData) {
     return submission.reply();
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const data = await prisma.user.update({
     where: {
       id: session.user?.id,
@@ -87,7 +86,6 @@ export async function onboardingAction(prevState: any, formData: FormData) {
   return redirect("/onboarding/grant-id");
 }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function SettingsAction(prevState: any, formData: FormData) {
     const session = await requireUser();
   
@@ -99,7 +97,6 @@ export async function SettingsAction(prevState: any, formData: FormData) {
       return submission.reply();
     }
   
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const user = await prisma.user.update({
       where: {
         id: session.user?.id as string,
@@ -114,7 +111,6 @@ export async function SettingsAction(prevState: any, formData: FormData) {
 }
 
 export async function updateAvailabilityAction(formData: FormData) {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const session = await requireUser();
 
   const rawData = Object.fromEntries(formData.entries());
@@ -152,7 +148,6 @@ export async function updateAvailabilityAction(formData: FormData) {
   }
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function EditEventTypeAction(prevState: any, formData: FormData) {
   const session = await requireUser();
 
@@ -176,7 +171,6 @@ export async function EditEventTypeAction(prevState: any, formData: FormData) {
     return submission.reply();
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const data = await prisma.eventType.update({
     where: {
       id: formData.get("id") as string,
@@ -197,7 +191,6 @@ export async function EditEventTypeAction(prevState: any, formData: FormData) {
 export async function DeleteEventTypeAction(formData: FormData) {
   const session = await requireUser();
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const data = await prisma.eventType.delete({
     where: {
       id: formData.get("id") as string,
@@ -209,7 +202,6 @@ export async function DeleteEventTypeAction(formData: FormData) {
 }
 
 export async function updateEventTypeStatusAction(
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   prevState: any,
   {
     eventTypeId,
@@ -222,7 +214,6 @@ export async function updateEventTypeStatusAction(
   try {
     const session = await requireUser();
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const data = await prisma.eventType.update({
       where: {
         id: eventTypeId,
@@ -248,7 +239,6 @@ export async function updateEventTypeStatusAction(
 }
 
 export async function CreateEventTypeAction(
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   prevState: any,
   formData: FormData
 ) {
@@ -358,7 +348,6 @@ export async function cancelMeetingAction(formData: FormData) {
     throw new Error("User not found");
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const data = await nylas.events.destroy({
     eventId: formData.get("eventId") as string,
     identifier: userData?.grantId as string,

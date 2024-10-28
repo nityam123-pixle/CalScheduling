@@ -16,7 +16,7 @@ const NotFoundPage: React.FC = () => {
           </div>
           <CardTitle className="text-3xl text-center">Page Not Found</CardTitle>
           <CardDescription className="text-center text-gray-400 mt-2 text-xl">
-            Sorry, the page you're looking for doesn't exist.
+            Sorry, the page you&apos;re looking for doesn&apos;t exist.
           </CardDescription>
         </CardHeader>
         <CardContent className="flex flex-col items-center gap-y-4">

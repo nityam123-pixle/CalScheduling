@@ -1,16 +1,12 @@
-import { notFound } from "next/navigation";
-import prisma from "../lib/db";
-import { requireUser } from "../lib/hooks";
-import { EmptyState } from "../components/EmptyState";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import {
-  ExternalLink,
-  Pen,
-  Settings,
-  Trash,
-  Users2,
-} from "lucide-react";
+import { notFound } from "next/navigation";
+import React from "react";
+import prisma from "../lib/db";
+import { requireUser } from "../lib/hooks";
+import { ExternalLink, Pen, Settings, Trash, Users2 } from "lucide-react";
+
+
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -20,16 +16,17 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { EmptyState } from "../components/EmptyState";
 import { CopyLinkMenuItem } from "../components/dashboard/CopyLinkMenu";
 import MenuActiveSwitcher from "../components/EventTypeSwitcher";
 
-async function getData(userId: string) {
+async function getData(id: string) {
   const data = await prisma.user.findUnique({
     where: {
-      id: userId,
+      id: id,
     },
+
     select: {
-      userName: true,
       EventType: {
         select: {
           id: true,
@@ -38,7 +35,11 @@ async function getData(userId: string) {
           url: true,
           duration: true,
         },
+        orderBy: {
+          createdAt: "desc",
+        },
       },
+      userName: true,
     },
   });
 
@@ -49,12 +50,23 @@ async function getData(userId: string) {
   return data;
 }
 
-export default async function DashboardPage() {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+const DashbaordPage = async () => {
   const session = await requireUser();
-  const data = await getData(session?.user?.id as string);
+  const data = await getData(session.user?.id as string);
+
   return (
     <>
+      <div className="flex items-center justify-between px-2">
+        <div className="sm:grid gap-1 hidden">
+          <h1 className="font-heading text-3xl md:text-4xl">Event Types</h1>
+          <p className="text-lg text-muted-foreground">
+            Create and manage your event types.
+          </p>
+        </div>
+        <Button asChild>
+          <Link href="/dashboard/new">Create New Event</Link>
+        </Button>
+      </div>
       {data.EventType.length === 0 ? (
         <EmptyState
           title="You have no Event Types"
@@ -63,91 +75,87 @@ export default async function DashboardPage() {
           href="/dashboard/new"
         />
       ) : (
-        <>
-          <div className="flex items-center justify-between px-2">
-            <div className="hidden sm:grid gap-y-1 mb-4">
-              <h1 className="text-4xl md:text-5xl font-semibold">
-                Event Types
-              </h1>
-              <p className="text-muted-foreground text-xl mt-2">
-                Create and manage your event types right here.
-              </p>
-            </div>
-            <Button asChild>
-              <Link href={"/dashboard/new"}>Create new Event</Link>
-            </Button>
-          </div>
-
-          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {data.EventType.map((item) => (
-              <div
-                className="overflow-hidden shadow rounded-lg border relative"
-                key={item.id}
-              >
-                <div className="absolute top-2 right-2">
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant={"outline"} size={"icon"}>
-                        <Settings className="size-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuLabel>Event</DropdownMenuLabel>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuGroup>
-                        <DropdownMenuItem asChild>
-                          <Link href={`/${data.userName}/${item.url}`}>
-                            <ExternalLink className="mr-2 size-4" />
-                            Preview
-                          </Link>
-                        </DropdownMenuItem>
-                        <CopyLinkMenuItem
-                          meetingUrl={`${process.env.NEXT_PUBLIC_URI}/${data.userName}/${item.url}`}
-                        />
-                        <DropdownMenuItem asChild>
-                          <Link href={`/dashboard/event/${item.id}`}>
-                          <Pen className="mr-2 size-4" />
-                          Edit
-                          </Link>
-                        </DropdownMenuItem>
-                      </DropdownMenuGroup>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem className="text-red-500" asChild>
-                        <Link href={`/dashboard/event/${item.id}/delete`}>
-                          <Trash className="mr-2 size-4" />
-                          Delete
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          {data.EventType.map((item) => (
+            <div
+              className="  overflow-hidden shadow rounded-lg border relative"
+              key={item.id}
+            >
+              <div className="absolute top-2 right-2">
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline" size="icon">
+                      <Settings className="size-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="w-20" align="end">
+                    <DropdownMenuLabel>Event</DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuGroup>
+                      <DropdownMenuItem asChild>
+                        <Link href={`/${data.userName}/${item.url}`}>
+                          <ExternalLink className="mr-2 h-4 w-4" />
+                          <span>Preview</span>
                         </Link>
                       </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
-                <Link href={"/"} className="flex items-center p-5">
-                  <div className="flex shrink-0">
-                    <Users2 className="size-6" />
-                  </div>
-
-                  <div className="ml-5 w-0 flex-1">
-                    <dl>
-                      <dt className="text-xl font-medium text-muted-foreground">
-                        {item.duration} Minutes Meeting
-                      </dt>
-                      <dd className="text-2xl font-medium">{item.title}</dd>
-                    </dl>
-                  </div>
-                </Link>
-                <div className="bg-muted px-5 py-3 flex justify-between items-center">
-                  <MenuActiveSwitcher initialChecked={item.active} eventTypeId={item.id} />
-                  <Button asChild>
-                    <Link href={`/dashboard/event/${item.id}`}>
-                    Edit Event
-                    </Link>
-                    </Button>
-                </div>
+                      <CopyLinkMenuItem
+                        meetingUrl={`${process.env.NEXT_PUBLIC_URL}/${data.userName}/${item.url}`}
+                      />
+                      <DropdownMenuItem asChild>
+                        <Link href={`/dashboard/event/${item.id}`}>
+                          <Pen className="mr-2 h-4 w-4" />
+                          <span>Edit</span>
+                        </Link>
+                      </DropdownMenuItem>
+                    </DropdownMenuGroup>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem asChild>
+                      <Link href={`/dashboard/event/${item.id}/delete`}>
+                        <Trash className="mr-2 h-4 w-4" />
+                        <span>Delete</span>
+                      </Link>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
-            ))}
-          </div>
-        </>
+
+              <Link href={`/dashboard/event/${item.id}`}>
+                <div className="p-5">
+                  <div className="flex items-center">
+                    <div className="flex-shrink-0">
+                      <Users2 className="h-6 w-6" aria-hidden="true" />
+                    </div>
+                    <div className="ml-5 w-0 flex-1">
+                      <dl>
+                        <dt className="text-sm font-medium truncate ">
+                          {item.duration} Minutes Meeting
+                        </dt>
+                        <dd>
+                          <div className="text-lg font-medium ">
+                            {item.title}
+                          </div>
+                        </dd>
+                      </dl>
+                    </div>
+                  </div>
+                </div>
+              </Link>
+              <div className="bg-muted dark:bg-gray-900 px-5 py-3 flex justify-between items-center">
+                <MenuActiveSwitcher
+                  initialChecked={item.active}
+                  eventTypeId={item.id}
+                />
+
+                <Link href={`/dashboard/event/${item.id}`}>
+                  <Button className="">Edit Event</Button>
+                </Link>
+              </div>
+            </div>
+          ))}
+        </div>
       )}
     </>
   );
-}
+};
+
+export default DashbaordPage;
